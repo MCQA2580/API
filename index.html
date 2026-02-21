@@ -8,7 +8,7 @@
     <meta name="referrer" content="never">
     <meta name="renderer" content="webkit">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>随机观看小姐姐视频_网页在线版</title>
+    <title>RandomBeautyVideo</title>
     <style>
         * {
             border: 0;
@@ -18,89 +18,476 @@
             box-sizing: border-box;
         }
         body {
-            background: #000;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
             width: 100vw;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
+            font-family: 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+            color: #fff;
+            line-height: 1.6;
+        }
+        header {
+            width: 100%;
+            padding: 24px 0;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.9);
+            border-bottom: 1px solid rgba(255, 107, 107, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        header h1 {
+            font-size: 32px;
+            color: #ff6b6b;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
         }
         #main {
-            height: calc(100vh - 60px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #player {
+            flex: 1;
             width: 100%;
-            height: auto;
-            max-height: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+            padding: 30px 20px;
+            margin: 0 auto;
+            align-items: flex-start;
         }
-        #buttons {
-            height: 60px;
-            padding: 10px;
+        
+        /* 左侧视频区域 */
+        .video-section {
+            flex: 3;
+            min-width: 0;
         }
-        #switch,
-        #next {
-            background: linear-gradient(to bottom, #FF2,#FB0);
-            color: #AF2E08;
+        
+        .video-container {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 107, 107, 0.2);
+            border: 1px solid rgba(255, 107, 107, 0.1);
+        }
+        
+        .video-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .video-header h2 {
+            font-size: 26px;
+            color: #fff;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .video-header p {
             font-size: 16px;
-            font-weight: bold;
-            height: 40px;
-            padding: 0 20px;
-            margin: 0 5px;
-            border-radius: 20px;
-            cursor: pointer;
+            color: #999;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .player-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        #player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
             transition: all 0.3s ease;
         }
-        #switch:hover,
-        #next:hover {
-            transform: scale(1.05);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        
+        #player:hover {
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
         }
-        #down {
-            background: linear-gradient(to bottom, #FF2,#FB0);
-            color: #AF2E08;
+        
+        .error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #999;
+            text-align: center;
+            display: none;
             font-size: 16px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+        
+        /* 右侧内容区域 */
+        .content-section {
+            flex: 2;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.05) 0%, rgba(0, 0, 0, 0.1) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 107, 107, 0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            background: rgba(255, 107, 107, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+        }
+        
+        .stat-item h3 {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-item p {
+            font-size: 20px;
+            color: #ff6b6b;
             font-weight: bold;
-            height: 40px;
-            padding: 10px 20px;
-            margin: 0 5px;
-            border-radius: 20px;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
         }
-        #down a {
-            color: #AF2E08;
-            text-decoration: none;
+        
+        .settings-container {
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.05) 0%, rgba(0, 0, 0, 0.1) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 107, 107, 0.1);
         }
-        #down a:visited {
-            color: #AF2E08;
+        
+        .settings-container h3 {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 20px;
+            font-weight: 600;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 107, 107, 0.2);
         }
+        
+        .setting-option {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .setting-option:hover {
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .setting-option input[type="checkbox"] {
+            margin-right: 15px;
+            width: 18px;
+            height: 18px;
+            accent-color: #ff6b6b;
+        }
+        
+        .setting-option label {
+            font-size: 16px;
+            color: #ccc;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .collection-container,
+        .history-container {
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.05) 0%, rgba(0, 0, 0, 0.1) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 107, 107, 0.1);
+        }
+        
+        .collection-container h3,
+        .history-container h3 {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 20px;
+            font-weight: 600;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 107, 107, 0.2);
+        }
+        
+        .empty-message {
+            font-size: 16px;
+            color: #999;
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px dashed rgba(255, 107, 107, 0.2);
+        }
+        
         #loading {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.9);
             color: #fff;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 25px 40px;
+            border-radius: 12px;
             font-size: 18px;
+            font-weight: 600;
             z-index: 1000;
             display: none;
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 50px rgba(255, 107, 107, 0.6);
+            }
+            100% {
+                box-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+            }
+        }
+        
+        .browser-warning {
+            text-align: center;
+            color: #ff6b6b;
+            margin-top: 20px;
+            font-size: 16px;
+            padding: 15px 30px;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+        
+        .control-buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .control-buttons button {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .control-buttons button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
+            background: linear-gradient(135deg, #ff7a7a 0%, #ff6b6b 100%);
+        }
+        
+        .control-buttons button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            #main {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .video-section,
+            .content-section {
+                width: 100%;
+                max-width: 900px;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 24px;
+            }
+            
+            #main {
+                padding: 20px;
+                gap: 20px;
+            }
+            
+            .video-container {
+                padding: 20px;
+            }
+            
+            .video-header h2 {
+                font-size: 20px;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                padding: 20px;
+            }
+            
+            .stat-item p {
+                font-size: 18px;
+            }
+            
+            .control-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-buttons button {
+                width: 100%;
+                max-width: 200px;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #main {
+                padding: 15px;
+            }
+            
+            .video-container {
+                padding: 15px;
+            }
+            
+            .video-header h2 {
+                font-size: 18px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .settings-container,
+            .collection-container,
+            .history-container {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
+    <header>
+        <h1>RandomBeautyVideo</h1>
+    </header>
+    
     <section id="main">
-        <video id="player" src="video.php" controls webkit-playsinline playsinline></video>
+        <!-- 左侧视频区域 -->
+        <div class="video-section">
+            <div class="video-container">
+                <div class="video-header">
+                    <h2>随机小姐姐视频</h2>
+                    <p>发现每一刻的美好，感受视觉的极致体验</p>
+                </div>
+                
+                <div class="player-wrapper">
+                    <video id="player" src="https://api.mmp.cc/api/ksvideo?type=mp4&id=jk" controls webkit-playsinline playsinline></video>
+                    <div class="error-message">视频加载失败，请检查网络连接或稍后重试</div>
+                </div>
+                
+                <div class="control-buttons">
+                <button id="next">播放下一个</button>
+                <button id="refresh">刷新视频</button>
+                <button id="download">下载视频</button>
+                <button id="collect">收藏视频</button>
+                <button id="share">分享视频</button>
+                <button id="fullscreen">全屏播放</button>
+            </div>
+            </div>
+            
+            <div class="browser-warning">您的浏览器不支持HTML5视频标签</div>
+        </div>
+        
+        <!-- 右侧内容区域 -->
+        <div class="content-section">
+            <div class="stats-container">
+                <div class="stat-item">
+                    <h3>观看次数</h3>
+                    <p>0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>收藏数量</h3>
+                    <p>0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>下载次数</h3>
+                    <p>0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>分享次数</h3>
+                    <p>0</p>
+                </div>
+            </div>
+            
+            <div class="settings-container">
+                <h3>播放设置</h3>
+                <div class="setting-option">
+                    <input type="checkbox" id="autoplay" checked>
+                    <label for="autoplay">自动播放</label>
+                </div>
+                <div class="setting-option">
+                    <input type="checkbox" id="loop">
+                    <label for="loop">循环播放</label>
+                </div>
+            </div>
+            
+            <div class="collection-container">
+                <h3>我的收藏</h3>
+                <div class="empty-message">暂无收藏</div>
+            </div>
+            
+            <div class="history-container">
+                <h3>观看历史</h3>
+                <div class="empty-message">暂无历史</div>
+            </div>
+        </div>
+        
         <div id="loading">加载中...</div>
     </section>
-    <section id="buttons">
-        <button id="switch">连续: 开</button>
-        <button id="next">播放下一个</button>
-        <span id="down"><a href="/">我的最爱</a></span>
-    </section>
+    
     <script>
         // 防止iframe嵌套
         if (top !== self) {
@@ -108,43 +495,420 @@
         }
         
         const player = document.getElementById('player');
-        const switchBtn = document.getElementById('switch');
         const nextBtn = document.getElementById('next');
+        const refreshBtn = document.getElementById('refresh');
+        const downloadBtn = document.getElementById('download');
+        const collectBtn = document.getElementById('collect');
+        const shareBtn = document.getElementById('share');
+        const fullscreenBtn = document.getElementById('fullscreen');
         const loading = document.getElementById('loading');
-        let autoPlay = true;
+        const errorMessage = document.querySelector('.error-message');
+        const autoplayCheckbox = document.getElementById('autoplay');
+        const loopCheckbox = document.getElementById('loop');
+        const viewCountElement = document.querySelector('.stat-item:nth-child(1) p');
+        const downloadCountElement = document.querySelector('.stat-item:nth-child(3) p');
+        const shareCountElement = document.querySelector('.stat-item:nth-child(4) p');
         
-        function playNext() {
+        let autoPlay = true;
+        let loopPlay = false;
+        
+        // 初始化观看次数
+        function initViewCount() {
+            let viewCount = localStorage.getItem('viewCount');
+            if (!viewCount) {
+                viewCount = 0;
+                localStorage.setItem('viewCount', viewCount);
+            }
+            viewCountElement.textContent = viewCount;
+        }
+        
+        // 增加观看次数
+        function incrementViewCount() {
+            let viewCount = parseInt(localStorage.getItem('viewCount') || '0');
+            viewCount++;
+            localStorage.setItem('viewCount', viewCount);
+            viewCountElement.textContent = viewCount;
+        }
+        
+        // 初始化下载次数
+        function initDownloadCount() {
+            let downloadCount = localStorage.getItem('downloadCount');
+            if (!downloadCount) {
+                downloadCount = 0;
+                localStorage.setItem('downloadCount', downloadCount);
+            }
+            downloadCountElement.textContent = downloadCount;
+        }
+        
+        // 增加下载次数
+        function incrementDownloadCount() {
+            let downloadCount = parseInt(localStorage.getItem('downloadCount') || '0');
+            downloadCount++;
+            localStorage.setItem('downloadCount', downloadCount);
+            downloadCountElement.textContent = downloadCount;
+        }
+        
+        // 下载视频
+        function downloadVideo() {
+            const videoUrl = player.src;
+            if (videoUrl) {
+                const a = document.createElement('a');
+                a.href = videoUrl;
+                a.download = 'video_' + Date.now() + '.mp4';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                incrementDownloadCount();
+            }
+        }
+        
+        // 初始化分享次数
+        function initShareCount() {
+            let shareCount = localStorage.getItem('shareCount');
+            if (!shareCount) {
+                shareCount = 0;
+                localStorage.setItem('shareCount', shareCount);
+            }
+            shareCountElement.textContent = shareCount;
+        }
+        
+        // 增加分享次数
+        function incrementShareCount() {
+            let shareCount = parseInt(localStorage.getItem('shareCount') || '0');
+            shareCount++;
+            localStorage.setItem('shareCount', shareCount);
+            shareCountElement.textContent = shareCount;
+        }
+        
+        // 分享视频
+        function shareVideo() {
+            const shareText = '随机小姐姐视频 - 发现每一刻的美好';
+            const shareUrl = window.location.href;
+            
+            if (navigator.share) {
+                // 使用Web Share API
+                navigator.share({
+                    title: 'RandomBeautyVideo',
+                    text: shareText,
+                    url: shareUrl
+                }).then(() => {
+                    incrementShareCount();
+                }).catch(err => {
+                    console.error('分享失败:', err);
+                });
+            } else {
+                // 复制链接到剪贴板
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert('链接已复制到剪贴板');
+                    incrementShareCount();
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                });
+            }
+        }
+        
+        // 初始化观看历史
+        function initHistory() {
+            const historyList = getHistory();
+            displayHistory(historyList);
+        }
+        
+        // 获取观看历史
+        function getHistory() {
+            const history = localStorage.getItem('watchHistory');
+            return history ? JSON.parse(history) : [];
+        }
+        
+        // 添加到观看历史
+        function addToHistory(videoUrl) {
+            let history = getHistory();
+            
+            // 移除重复项
+            history = history.filter(item => item.url !== videoUrl);
+            
+            // 添加新记录
+            const historyItem = {
+                url: videoUrl,
+                title: '随机视频',
+                timestamp: new Date().toISOString()
+            };
+            
+            // 限制历史记录数量
+            history.unshift(historyItem);
+            if (history.length > 20) {
+                history = history.slice(0, 20);
+            }
+            
+            localStorage.setItem('watchHistory', JSON.stringify(history));
+            displayHistory(history);
+        }
+        
+        // 显示观看历史
+        function displayHistory(historyList) {
+            const historyContainer = document.querySelector('.history-container');
+            const historyContent = historyContainer.querySelector('.empty-message') || document.createElement('div');
+            
+            if (historyList.length === 0) {
+                historyContent.className = 'empty-message';
+                historyContent.innerHTML = '暂无历史';
+            } else {
+                historyContent.className = 'history-list';
+                historyContent.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h4 style="color: #ccc; margin: 0;">观看历史 (${historyList.length})</h4>
+                        <button onclick="clearHistory()" style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.3); padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">清除历史</button>
+                    </div>
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        ${historyList.map((item, index) => {
+                            const date = new Date(item.timestamp);
+                            return `
+                                <div style="padding: 10px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <p style="color: #fff; margin: 0 0 5px 0; font-size: 14px;">视频 ${index + 1}</p>
+                                        <p style="color: #999; margin: 0; font-size: 12px;">${date.toLocaleString()}</p>
+                                    </div>
+                                    <button onclick="playHistoryVideo('${item.url}')" style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.3); padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">播放</button>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+            
+            // 替换或添加历史记录内容
+            const existingContent = historyContainer.querySelector('.history-list') || historyContainer.querySelector('.empty-message');
+            if (existingContent) {
+                historyContainer.replaceChild(historyContent, existingContent);
+            } else {
+                historyContainer.appendChild(historyContent);
+            }
+        }
+        
+        // 清除观看历史
+        function clearHistory() {
+            if (confirm('确定要清除所有观看历史吗？')) {
+                localStorage.removeItem('watchHistory');
+                displayHistory([]);
+            }
+        }
+        
+        // 播放历史视频
+        function playHistoryVideo(videoUrl) {
             loading.style.display = 'block';
-            player.src = 'http://v.nrzj.vip/video.php?_t=' + Math.random();
+            player.src = videoUrl;
             player.play().catch(err => {
                 console.error('播放失败:', err);
             });
         }
         
+        // 初始化收藏
+        function initCollection() {
+            const collectionList = getCollection();
+            displayCollection(collectionList);
+            updateCollectButton();
+        }
+        
+        // 获取收藏列表
+        function getCollection() {
+            const collection = localStorage.getItem('collection');
+            return collection ? JSON.parse(collection) : [];
+        }
+        
+        // 检查是否已收藏
+        function isCollected(videoUrl) {
+            const collection = getCollection();
+            return collection.some(item => item.url === videoUrl);
+        }
+        
+        // 添加或移除收藏
+        function toggleCollection() {
+            const videoUrl = player.src;
+            if (!videoUrl) return;
+            
+            let collection = getCollection();
+            const isAlreadyCollected = isCollected(videoUrl);
+            
+            if (isAlreadyCollected) {
+                // 移除收藏
+                collection = collection.filter(item => item.url !== videoUrl);
+                alert('已取消收藏');
+            } else {
+                // 添加收藏
+                const collectionItem = {
+                    url: videoUrl,
+                    title: '随机视频',
+                    timestamp: new Date().toISOString()
+                };
+                collection.push(collectionItem);
+                alert('收藏成功');
+            }
+            
+            localStorage.setItem('collection', JSON.stringify(collection));
+            displayCollection(collection);
+            updateCollectButton();
+        }
+        
+        // 更新收藏按钮状态
+        function updateCollectButton() {
+            const videoUrl = player.src;
+            if (videoUrl && isCollected(videoUrl)) {
+                collectBtn.textContent = '取消收藏';
+                collectBtn.style.background = 'linear-gradient(135deg, #666 0%, #444 100%)';
+                collectBtn.style.boxShadow = '0 4px 15px rgba(102, 102, 102, 0.3)';
+            } else {
+                collectBtn.textContent = '收藏视频';
+                collectBtn.style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)';
+                collectBtn.style.boxShadow = '0 4px 15px rgba(255, 107, 107, 0.3)';
+            }
+        }
+        
+        // 显示收藏列表
+        function displayCollection(collectionList) {
+            const collectionContainer = document.querySelector('.collection-container');
+            const collectionContent = collectionContainer.querySelector('.empty-message') || document.createElement('div');
+            
+            if (collectionList.length === 0) {
+                collectionContent.className = 'empty-message';
+                collectionContent.innerHTML = '暂无收藏';
+            } else {
+                collectionContent.className = 'collection-list';
+                collectionContent.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h4 style="color: #ccc; margin: 0;">我的收藏 (${collectionList.length})</h4>
+                        <button onclick="clearCollection()" style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.3); padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">清除收藏</button>
+                    </div>
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        ${collectionList.map((item, index) => {
+                            const date = new Date(item.timestamp);
+                            return `
+                                <div style="padding: 10px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <p style="color: #fff; margin: 0 0 5px 0; font-size: 14px;">收藏 ${index + 1}</p>
+                                        <p style="color: #999; margin: 0; font-size: 12px;">${date.toLocaleString()}</p>
+                                    </div>
+                                    <div style="display: flex; gap: 5px;">
+                                        <button onclick="playCollectionVideo('${item.url}')" style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.3); padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">播放</button>
+                                        <button onclick="removeFromCollection('${item.url}')" style="background: rgba(102, 102, 102, 0.2); color: #666; border: 1px solid rgba(102, 102, 102, 0.3); padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">删除</button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+            
+            // 替换或添加收藏内容
+            const existingContent = collectionContainer.querySelector('.collection-list') || collectionContainer.querySelector('.empty-message');
+            if (existingContent) {
+                collectionContainer.replaceChild(collectionContent, existingContent);
+            } else {
+                collectionContainer.appendChild(collectionContent);
+            }
+        }
+        
+        // 清除所有收藏
+        function clearCollection() {
+            if (confirm('确定要清除所有收藏吗？')) {
+                localStorage.removeItem('collection');
+                displayCollection([]);
+                updateCollectButton();
+            }
+        }
+        
+        // 从收藏中移除
+        function removeFromCollection(videoUrl) {
+            let collection = getCollection();
+            collection = collection.filter(item => item.url !== videoUrl);
+            localStorage.setItem('collection', JSON.stringify(collection));
+            displayCollection(collection);
+            updateCollectButton();
+        }
+        
+        // 播放收藏视频
+        function playCollectionVideo(videoUrl) {
+            loading.style.display = 'block';
+            player.src = videoUrl;
+            player.play().catch(err => {
+                console.error('播放失败:', err);
+            });
+            updateCollectButton();
+        }
+        
+        function playNext() {
+            loading.style.display = 'block';
+            errorMessage.style.display = 'none';
+            player.src = 'https://api.mmp.cc/api/ksvideo?type=mp4&id=jk&_t=' + Math.random();
+            player.play().catch(err => {
+                console.error('播放失败:', err);
+                errorMessage.style.display = 'block';
+            });
+        }
+        
         function hideLoading() {
             loading.style.display = 'none';
+            errorMessage.style.display = 'none';
+            updateCollectButton();
+        }
+        
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error('无法进入全屏模式:', err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
         }
         
         // 绑定事件
         nextBtn.addEventListener('click', playNext);
+        refreshBtn.addEventListener('click', playNext);
+        downloadBtn.addEventListener('click', downloadVideo);
+        collectBtn.addEventListener('click', toggleCollection);
+        shareBtn.addEventListener('click', shareVideo);
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
         
         player.addEventListener('error', () => {
             console.error('视频加载失败，尝试下一个');
-            setTimeout(playNext, 1000);
+            errorMessage.style.display = 'block';
+            setTimeout(playNext, 3000);
         });
         
         player.addEventListener('loadeddata', hideLoading);
         player.addEventListener('canplay', hideLoading);
         
-        switchBtn.addEventListener('click', () => {
-            autoPlay = !autoPlay;
-            switchBtn.textContent = '连续: ' + (autoPlay ? '开' : '关');
+        // 当视频开始播放时增加观看次数并添加到历史记录
+        player.addEventListener('play', () => {
+            incrementViewCount();
+            addToHistory(player.src);
+        });
+        
+        autoplayCheckbox.addEventListener('change', () => {
+            autoPlay = autoplayCheckbox.checked;
+        });
+        
+        loopCheckbox.addEventListener('change', () => {
+            loopPlay = loopCheckbox.checked;
+            player.loop = loopPlay;
         });
         
         player.addEventListener('ended', () => {
-            if (autoPlay) playNext();
+            if (autoPlay && !loopPlay) {
+                playNext();
+            }
         });
+        
+        // 初始化
+        initViewCount();
+        initDownloadCount();
+        initShareCount();
+        initHistory();
+        initCollection();
+        player.loop = loopPlay;
     </script>
+    
     <script>
         var _hmt = _hmt || [];
         (function() {
