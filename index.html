@@ -27,7 +27,9 @@
             border-radius: 10px;
         }
         body {
-            background: linear-gradient(135deg, #f9f0f4 0%, #f5e6ec 100%);
+            /* 使用随机图片API作为背景 */
+            background: url('https://www.dmoe.cc/random.php') no-repeat center center fixed;
+            background-size: cover;
             width: 100vw;
             min-height: 100vh;
             overflow-x: hidden;
@@ -40,6 +42,18 @@
             margin: 0;
             padding: 0;
         }
+        
+        /* 背景叠加层，确保内容清晰可见 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(249, 240, 244, 0.8) 0%, rgba(245, 230, 236, 0.8) 100%);
+            z-index: -1;
+        }
         button {
             color: #fff !important;
         }
@@ -47,49 +61,62 @@
         #main {
             flex: 1;
             width: 100%;
-            max-width: 1400px;
+            max-width: 1200px;
             display: flex;
             flex-direction: row;
-            gap: 30px;
-            padding: 30px 20px;
+            gap: 25px;
+            padding: 40px 25px;
             margin: 0 auto;
             align-items: flex-start;
         }
         
         /* 左侧视频区域 */
         .video-section {
-            flex: 4;
+            flex: 3;
             min-width: 0;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
         }
         
-
+        /* 视频播放器容器 */
+        .player-container {
+            position: relative;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(255, 192, 203, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .player-container:hover {
+            box-shadow: 0 12px 40px rgba(255, 192, 203, 0.4);
+            transform: translateY(-2px);
+        }
         
         /* 控制按钮区域 */
         .controls-section {
             width: 100%;
-            background: transparent;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 16px;
-            padding: 20px;
-            box-shadow: none;
-            border: none;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(255, 192, 203, 0.2);
+            border: 1px solid rgba(255, 192, 203, 0.3);
         }
         
         .control-buttons {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
+            gap: 20px;
         }
         
         .control-buttons button {
             background: linear-gradient(135deg, #ffc0cb 0%, #ffb6c1 100%);
             color: #000;
             border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
+            padding: 14px 28px;
+            border-radius: 30px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
@@ -97,10 +124,13 @@
             box-shadow: 0 4px 15px rgba(255, 192, 203, 0.3);
             text-transform: uppercase;
             letter-spacing: 1px;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
         }
         
         .control-buttons button:hover {
-            transform: translateY(-3px) scale(1.05);
+            transform: translateY(-3px) scale(1.03);
             box-shadow: 0 8px 25px rgba(255, 192, 203, 0.5);
             background: linear-gradient(135deg, #ffd1dc 0%, #ffc0cb 100%);
         }
@@ -133,14 +163,13 @@
             width: 100%;
             height: auto;
             aspect-ratio: 16 / 9;
-            border-radius: 10px;
+            border-radius: 0;
             transition: all 0.3s ease;
             object-fit: contain;
-            margin-bottom: 20px;
         }
         
         #player:hover {
-            box-shadow: 0 0 30px rgba(255, 192, 203, 0.3);
+            box-shadow: 0 0 30px rgba(255, 192, 203, 0.5);
         }
         
         .error-message {
@@ -150,9 +179,9 @@
             font-size: 16px;
             padding: 20px;
             background: rgba(255, 192, 203, 0.1);
-            border-radius: 10px;
+            border-radius: 0 0 16px 16px;
             border: 1px solid rgba(255, 192, 203, 0.3);
-            margin-bottom: 20px;
+            border-top: none;
         }
         
         /* 右侧内容区域 */
@@ -161,83 +190,89 @@
             min-width: 0;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
         }
         
         .stats-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            padding: 25px;
-            background: transparent;
-            border-radius: 12px;
-            border: none;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 192, 203, 0.3);
+            box-shadow: 0 4px 20px rgba(255, 192, 203, 0.2);
         }
         
         .stat-item {
             text-align: center;
-            padding: 15px;
+            padding: 20px;
             background: rgba(255, 192, 203, 0.1);
-            border-radius: 8px;
+            border-radius: 12px;
             transition: all 0.3s ease;
+            border: 1px solid rgba(255, 192, 203, 0.2);
         }
         
         .stat-item:hover {
             background: rgba(255, 192, 203, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 192, 203, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 192, 203, 0.3);
         }
         
         .stat-item h3 {
-            font-size: 14px;
+            font-size: 16px;
             color: #666;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         
         .stat-item p {
-            font-size: 20px;
+            font-size: 24px;
             color: #333;
             font-weight: bold;
-            text-shadow: 0 0 10px rgba(255, 192, 203, 0.3);
+            text-shadow: 0 0 15px rgba(255, 192, 203, 0.4);
         }
         
         .settings-container {
-            padding: 25px;
-            background: transparent;
-            border-radius: 12px;
-            border: none;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 192, 203, 0.3);
+            box-shadow: 0 4px 20px rgba(255, 192, 203, 0.2);
         }
         
         .settings-container h3 {
             font-size: 18px;
             color: #333;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-weight: 600;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 192, 203, 0.3);
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 192, 203, 0.3);
+            text-align: center;
         }
         
         .setting-option {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            padding: 10px;
+            padding: 15px;
             background: rgba(255, 192, 203, 0.1);
-            border-radius: 8px;
+            border-radius: 12px;
             transition: all 0.3s ease;
+            border: 1px solid rgba(255, 192, 203, 0.2);
         }
         
         .setting-option:hover {
             background: rgba(255, 192, 203, 0.2);
+            transform: translateX(5px);
         }
         
         .setting-option input[type="checkbox"] {
-            margin-right: 15px;
-            width: 18px;
-            height: 18px;
+            margin-right: 20px;
+            width: 20px;
+            height: 20px;
             accent-color: #ffc0cb;
         }
         
@@ -246,25 +281,10 @@
             color: #333;
             font-weight: 500;
             cursor: pointer;
+            flex: 1;
         }
         
-        .collection-container,
-        .history-container {
-            padding: 25px;
-            background: transparent;
-            border-radius: 12px;
-            border: none;
-        }
-        
-        .collection-container h3,
-        .history-container h3 {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 20px;
-            font-weight: 600;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 192, 203, 0.3);
-        }
+
         
         .empty-message {
             font-size: 16px;
@@ -306,16 +326,7 @@
             }
         }
         
-        .browser-warning {
-            text-align: center;
-            color: #666;
-            margin-top: 20px;
-            font-size: 16px;
-            padding: 15px 30px;
-            background: rgba(255, 192, 203, 0.1);
-            border-radius: 10px;
-            border: 1px solid rgba(255, 192, 203, 0.3);
-        }
+
         
         /* 桌面端优化 */
         @media (min-width: 1200px) {
@@ -521,6 +532,7 @@
     </style>
 </head>
 <body>
+
     <section id="main">
         <!-- 左侧视频区域 -->
         <div class="video-section">
@@ -528,12 +540,14 @@
                 <h2>RandomBeautyVideo</h2>
                 <p>发现每一刻的美好，随机小姐姐视频为您呈现</p>
             </div>
-            <video id="player" controls webkit-playsinline playsinline>
-                <source src="https://api.mmp.cc/api/ksvideo?type=mp4&id=jk" type="video/mp4">
-                您的浏览器不支持HTML5视频播放。
-            </video>
-            <div class="error-message">
-                <p>视频加载失败，正在尝试下一个...</p>
+            <div class="player-container">
+                <video id="player" controls webkit-playsinline playsinline>
+                    <source src="https://api.mmp.cc/api/ksvideo?type=mp4&id=jk" type="video/mp4">
+                    您的浏览器不支持HTML5视频播放。
+                </video>
+                <div class="error-message">
+                    <p>视频加载失败，正在尝试下一个...</p>
+                </div>
             </div>
             
             <!-- 控制按钮区域 -->
@@ -581,11 +595,7 @@
             
 
             
-            <!-- 观看历史 -->
-            <div class="history-container">
-                <h3>观看历史</h3>
-                <div class="empty-message">暂无历史</div>
-            </div>
+
         </div>
     </section>
     
@@ -869,94 +879,7 @@
             }
         }
         
-        // 初始化观看历史
-        function initHistory() {
-            const historyList = getHistory();
-            displayHistory(historyList);
-        }
-        
-        // 获取观看历史
-        function getHistory() {
-            const history = localStorage.getItem('watchHistory');
-            return history ? JSON.parse(history) : [];
-        }
-        
-        // 添加到观看历史
-        function addToHistory(videoUrl) {
-            // 移除URL中的随机参数，只保存基础URL
-            const baseVideoUrl = videoUrl.replace(/&_t=.*$/, '');
-            
-            let history = getHistory();
-            history = history.filter(item => item.url !== baseVideoUrl);
-            const historyItem = {
-                url: baseVideoUrl,
-                title: '随机视频',
-                timestamp: new Date().toISOString()
-            };
-            history.unshift(historyItem);
-            if (history.length > 20) {
-                history = history.slice(0, 20);
-            }
-            localStorage.setItem('watchHistory', JSON.stringify(history));
-            displayHistory(history);
-        }
-        
-        // 显示观看历史
-        function displayHistory(historyList) {
-            const historyContainer = document.querySelector('.history-container');
-            const historyContent = historyContainer.querySelector('.empty-message') || document.createElement('div');
-            
-            if (historyList.length === 0) {
-                historyContent.className = 'empty-message';
-                historyContent.innerHTML = '暂无历史';
-            } else {
-                historyContent.className = 'history-list';
-                historyContent.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h4 style="color: #666; margin: 0;">观看历史 (${historyList.length})</h4>
-                        <button onclick="clearHistory()" style="background: rgba(255, 192, 203, 0.2); color: #333; border: 1px solid rgba(255, 192, 203, 0.3); padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">清除历史</button>
-                    </div>
-                    <div style="max-height: 300px; overflow-y: auto;">
-                        ${historyList.map((item, index) => {
-                            const date = new Date(item.timestamp);
-                            return `
-                                <div style="padding: 10px; margin-bottom: 10px; background: rgba(255, 192, 203, 0.1); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <p style="color: #333; margin: 0 0 5px 0; font-size: 14px;">视频 ${index + 1}</p>
-                                        <p style="color: #666; margin: 0; font-size: 12px;">${date.toLocaleString()}</p>
-                                    </div>
-                                    <button onclick="playHistoryVideo(decodeURIComponent('${encodeURIComponent(item.url)}'))" style="background: rgba(255, 192, 203, 0.2); color: #333; border: 1px solid rgba(255, 192, 203, 0.3); padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">播放</button>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                `;
-            }
-            
-            const existingContent = historyContainer.querySelector('.history-list') || historyContainer.querySelector('.empty-message');
-            if (existingContent) {
-                historyContainer.replaceChild(historyContent, existingContent);
-            } else {
-                historyContainer.appendChild(historyContent);
-            }
-        }
-        
-        // 清除观看历史
-        window.clearHistory = function() {
-            if (confirm('确定要清除所有观看历史吗？')) {
-                localStorage.removeItem('watchHistory');
-                displayHistory([]);
-            }
-        };
-        
-        // 播放历史视频
-        window.playHistoryVideo = function(videoUrl) {
-            loading.style.display = 'block';
-            player.src = videoUrl;
-            player.play().catch(err => {
-                console.error('播放失败:', err);
-            });
-        };
+
         
 
         
@@ -1021,7 +944,6 @@
         
         player.addEventListener('play', () => {
             incrementViewCount();
-            addToHistory(player.src);
         });
         
         autoplayCheckbox.addEventListener('change', () => {
@@ -1043,7 +965,6 @@
         initViewCount();
         initDownloadCount();
         initShareCount();
-        initHistory();
         player.loop = loopPlay;
         });
     </script>
