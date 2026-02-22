@@ -972,15 +972,115 @@
         }
         
         function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.error('无法进入全屏模式:', err);
-                });
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
+            // 创建小窗口播放
+            createFloatingPlayer();
+        }
+        
+        // 创建浮动播放器窗口
+        function createFloatingPlayer() {
+            // 检查是否已存在浮动窗口
+            let floatingWindow = document.getElementById('floating-player');
+            if (floatingWindow) {
+                floatingWindow.style.display = 'block';
+                return;
             }
+            
+            // 创建浮动窗口
+            floatingWindow = document.createElement('div');
+            floatingWindow.id = 'floating-player';
+            floatingWindow.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 90%;
+                max-width: 800px;
+                height: 60%;
+                background: rgba(0, 0, 0, 0.95);
+                border-radius: 15px;
+                box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                border: 2px solid rgba(255, 107, 107, 0.3);
+            `;
+            
+            // 创建关闭按钮
+            const closeButton = document.createElement('button');
+            closeButton.textContent = '×';
+            closeButton.style.cssText = `
+                position: absolute;
+                top: 10px;
+                right: 15px;
+                background: rgba(255, 107, 107, 0.2);
+                color: #ff6b6b;
+                border: 1px solid rgba(255, 107, 107, 0.3);
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                font-size: 20px;
+                line-height: 28px;
+                text-align: center;
+                cursor: pointer;
+                z-index: 10;
+                transition: all 0.3s ease;
+            `;
+            closeButton.onmouseover = function() {
+                this.style.background = 'rgba(255, 107, 107, 0.4)';
+                this.style.transform = 'scale(1.1)';
+            };
+            closeButton.onmouseout = function() {
+                this.style.background = 'rgba(255, 107, 107, 0.2)';
+                this.style.transform = 'scale(1)';
+            };
+            closeButton.onclick = function() {
+                floatingWindow.style.display = 'none';
+            };
+            
+            // 创建播放器容器
+            const playerContainer = document.createElement('div');
+            playerContainer.style.cssText = `
+                flex: 1;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            `;
+            
+            // 创建视频元素
+            const floatingPlayer = document.createElement('video');
+            floatingPlayer.src = player.src;
+            floatingPlayer.controls = true;
+            floatingPlayer.webkitPlaysinline = true;
+            floatingPlayer.playsinline = true;
+            floatingPlayer.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                border-radius: 10px;
+            `;
+            
+            // 复制当前播放状态
+            if (!player.paused) {
+                floatingPlayer.play().catch(err => {
+                    console.error('播放失败:', err);
+                });
+            }
+            
+            // 组合元素
+            playerContainer.appendChild(floatingPlayer);
+            floatingWindow.appendChild(closeButton);
+            floatingWindow.appendChild(playerContainer);
+            document.body.appendChild(floatingWindow);
+            
+            // 点击窗口外部关闭
+            floatingWindow.addEventListener('click', function(e) {
+                if (e.target === floatingWindow) {
+                    floatingWindow.style.display = 'none';
+                }
+            });
         }
         
         // 绑定事件
