@@ -557,10 +557,6 @@
                     <p>0</p>
                 </div>
                 <div class="stat-item">
-                    <h3>收藏次数</h3>
-                    <p>0</p>
-                </div>
-                <div class="stat-item">
                     <h3>下载次数</h3>
                     <p>0</p>
                 </div>
@@ -615,8 +611,8 @@
         const autoplayCheckbox = document.getElementById('autoplay');
         const loopCheckbox = document.getElementById('loop');
         const viewCountElement = document.querySelector('.stat-item:nth-child(1) p');
-        const downloadCountElement = document.querySelector('.stat-item:nth-child(3) p');
-        const shareCountElement = document.querySelector('.stat-item:nth-child(4) p');
+        const downloadCountElement = document.querySelector('.stat-item:nth-child(2) p');
+        const shareCountElement = document.querySelector('.stat-item:nth-child(3) p');
         
         let autoPlay = true;
         let loopPlay = false;
@@ -657,7 +653,7 @@
             downloadCountElement.textContent = downloadCount;
         }
         
-        // 下载视频
+        // 下载视频（模拟浏览器"三个点"下载功能）
         function downloadVideo() {
             // 获取视频URL，如果player.src为空，使用默认URL
             let videoUrl = player.src;
@@ -669,12 +665,91 @@
             // 显示加载动画
             loading.style.display = 'block';
             
-            // 方法1：尝试使用Fetch API（首选方法）
-            function tryFetchDownload() {
-                fetch(videoUrl, {
+            // 控制台输出当前下载的URL，方便调试
+            console.log('正在下载视频:', videoUrl);
+            
+            // 移除URL中的随机参数，确保下载的是基础视频
+            const baseUrl = videoUrl.replace(/&_t=.*$/, '');
+            console.log('使用基础URL:', baseUrl);
+            
+            // 方法1：模拟浏览器"三个点"下载（直接打开视频URL）
+            function tryBrowserDownload() {
+                console.log('尝试模拟浏览器"三个点"下载');
+                
+                try {
+                    // 在新标签页中打开视频URL
+                    // 这样用户可以在新标签页中使用浏览器的"三个点"菜单进行下载
+                    const newTab = window.open(baseUrl, '_blank');
+                    
+                    if (newTab) {
+                        console.log('成功打开新标签页');
+                        
+                        // 增加下载次数
+                        incrementDownloadCount();
+                        
+                        // 隐藏加载动画
+                        loading.style.display = 'none';
+                        alert('视频已在新标签页打开，请使用浏览器右上角的"三个点"菜单选择"下载"或右键视频选择"保存视频"');
+                    } else {
+                        console.error('无法打开新标签页，可能被浏览器阻止');
+                        // 尝试HTML5标准下载
+                        tryHtml5Download();
+                    }
+                } catch (error) {
+                    console.error('浏览器下载失败:', error);
+                    // 尝试HTML5标准下载
+                    tryHtml5Download();
+                }
+            }
+            
+            // 方法2：HTML5标准下载
+            function tryHtml5Download() {
+                console.log('尝试HTML5标准下载');
+                
+                // 检查浏览器是否支持HTML5下载功能
+                if ('download' in document.createElement('a')) {
+                    console.log('浏览器支持HTML5 download属性');
+                    
+                    try {
+                        const a = document.createElement('a');
+                        a.href = baseUrl;
+                        a.download = 'video_' + Date.now() + '.mp4';
+                        a.style.display = 'none';
+                        document.body.appendChild(a);
+                        
+                        a.click();
+                        
+                        // 增加下载次数
+                        incrementDownloadCount();
+                        
+                        // 隐藏加载动画
+                        loading.style.display = 'none';
+                        alert('视频下载已开始，请在浏览器下载管理中查看\n如果未开始下载，请尝试使用浏览器右上角的"三个点"菜单');
+                        
+                        // 移除链接
+                        setTimeout(() => {
+                            document.body.removeChild(a);
+                        }, 100);
+                    } catch (error) {
+                        console.error('HTML5下载失败:', error);
+                        // 尝试Blob下载
+                        tryBlobDownload();
+                    }
+                } else {
+                    console.log('浏览器不支持HTML5 download属性');
+                    // 尝试Blob下载
+                    tryBlobDownload();
+                }
+            }
+            
+            // 方法3：使用Blob URL下载
+            function tryBlobDownload() {
+                console.log('尝试使用Blob URL下载');
+                
+                fetch(baseUrl, {
                     method: 'GET',
                     mode: 'cors',
-                    cache: 'no-cache',
+                    cache: 'force-cache',
                     headers: {
                         'Accept': 'video/mp4'
                     }
@@ -686,77 +761,60 @@
                     return response.blob();
                 })
                 .then(blob => {
+                    console.log('成功获取视频Blob数据，大小:', blob.size, 'bytes');
+                    
                     // 创建Blob URL
                     const blobUrl = URL.createObjectURL(blob);
+                    console.log('创建Blob URL:', blobUrl);
                     
-                    // 创建下载链接
-                    const a = document.createElement('a');
-                    a.href = blobUrl;
-                    a.download = 'video_' + Date.now() + '.mp4';
-                    document.body.appendChild(a);
+                    // 在新标签页中打开Blob URL，让用户使用浏览器"三个点"菜单下载
+                    const newTab = window.open(blobUrl, '_blank');
                     
-                    // 触发点击
-                    a.click();
-                    
-                    // 释放Blob URL
-                    setTimeout(() => {
-                        URL.revokeObjectURL(blobUrl);
-                        document.body.removeChild(a);
-                    }, 100);
-                    
-                    // 增加下载次数
-                    incrementDownloadCount();
-                    
-                    // 隐藏加载动画
-                    loading.style.display = 'none';
-                    alert('视频下载已开始，请在浏览器下载管理中查看');
+                    if (newTab) {
+                        console.log('成功在新标签页打开Blob URL');
+                        
+                        // 增加下载次数
+                        incrementDownloadCount();
+                        
+                        // 隐藏加载动画
+                        loading.style.display = 'none';
+                        alert('视频已在新标签页打开，请使用浏览器右上角的"三个点"菜单选择"下载"或右键视频选择"保存视频"');
+                    } else {
+                        console.error('无法打开新标签页，尝试直接下载');
+                        
+                        // 直接使用download属性下载
+                        const a = document.createElement('a');
+                        a.href = blobUrl;
+                        a.download = 'video_' + Date.now() + '.mp4';
+                        a.style.display = 'none';
+                        document.body.appendChild(a);
+                        
+                        a.click();
+                        
+                        // 增加下载次数
+                        incrementDownloadCount();
+                        
+                        // 隐藏加载动画
+                        loading.style.display = 'none';
+                        alert('视频下载已开始，请在浏览器下载管理中查看');
+                        
+                        // 释放Blob URL
+                        setTimeout(() => {
+                            URL.revokeObjectURL(blobUrl);
+                            document.body.removeChild(a);
+                        }, 100);
+                    }
                 })
                 .catch(error => {
-                    console.error('Fetch下载失败:', error);
-                    // 尝试备用方法
-                    tryDirectDownload();
+                    console.error('Blob下载失败:', error);
+                    // 显示错误信息
+                    loading.style.display = 'none';
+                    alert('所有下载方法均失败，请稍后再试\n建议：\n1. 检查网络连接\n2. 尝试在浏览器中直接访问以下URL:\n' + baseUrl + '\n3. 在新页面中使用浏览器右上角的"三个点"菜单进行下载');
                 });
             }
             
-            // 方法2：直接下载（备用方法）
-            function tryDirectDownload() {
-                try {
-                    // 创建下载链接
-                    const a = document.createElement('a');
-                    a.href = videoUrl;
-                    a.download = 'video_' + Date.now() + '.mp4';
-                    // 设置target为_blank作为最后手段
-                    a.target = '_blank';
-                    document.body.appendChild(a);
-                    
-                    // 触发点击
-                    const clickEvent = new MouseEvent('click', {
-                        view: window,
-                        bubbles: true,
-                        cancelable: true
-                    });
-                    a.dispatchEvent(clickEvent);
-                    
-                    // 增加下载次数
-                    incrementDownloadCount();
-                    
-                    // 隐藏加载动画
-                    loading.style.display = 'none';
-                    alert('视频下载已开始，请在浏览器下载管理中查看\n如果没有开始下载，请在新打开的页面中右键保存视频');
-                    
-                    // 移除链接
-                    setTimeout(() => {
-                        document.body.removeChild(a);
-                    }, 100);
-                } catch (error) {
-                    console.error('直接下载失败:', error);
-                    loading.style.display = 'none';
-                    alert('下载失败，请稍后再试\n建议：请检查网络连接，或尝试在浏览器中直接访问以下URL:\n' + videoUrl);
-                }
-            }
-            
             // 开始下载
-            tryFetchDownload();
+            tryBrowserDownload();
         }
         
         // 初始化分享次数
@@ -779,12 +837,17 @@
         
         // 分享视频
         function shareVideo() {
-            const floatingWindow = document.getElementById('floating-player');
-            const floatingPlayer = floatingWindow ? floatingWindow.querySelector('video') : null;
-            const videoUrl = floatingPlayer ? floatingPlayer.src : player.src;
+            // 获取当前视频URL，使用主播放器的URL
+            let videoUrl = player.src;
+            if (!videoUrl) {
+                // 如果主播放器URL为空，使用默认URL
+                videoUrl = 'https://api.mmp.cc/api/ksvideo?type=mp4&id=jk';
+            }
+            
+            // 移除URL中的随机参数，只分享基础URL
+            const shareUrl = videoUrl.replace(/&_t=.*$/, '');
             
             const shareText = '随机小姐姐视频 - 发现每一刻的美好';
-            const shareUrl = videoUrl;
             
             if (navigator.share) {
                 navigator.share({
