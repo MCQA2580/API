@@ -542,7 +542,6 @@
                     <button id="next">播放下一个</button>
                     <button id="refresh">刷新视频</button>
                     <button id="download">下载视频</button>
-                    <button id="collect">收藏视频</button>
                     <button id="share">分享视频</button>
                     <button id="fullscreen">全屏播放</button>
                 </div>
@@ -584,11 +583,7 @@
                 </div>
             </div>
             
-            <!-- 收藏功能 -->
-            <div class="collection-container">
-                <h3>我的收藏</h3>
-                <div class="empty-message">暂无收藏</div>
-            </div>
+
             
             <!-- 观看历史 -->
             <div class="history-container">
@@ -602,6 +597,8 @@
     <div id="loading">加载中...</div>
     
     <script>
+        // 使用DOMContentLoaded确保DOM元素加载完成后再执行JavaScript代码
+        document.addEventListener('DOMContentLoaded', function() {
         // 防止iframe嵌套
         if (top !== self) {
             top.location.replace(self.location.href);
@@ -611,7 +608,6 @@
         const nextBtn = document.getElementById('next');
         const refreshBtn = document.getElementById('refresh');
         const downloadBtn = document.getElementById('download');
-        const collectBtn = document.getElementById('collect');
         const shareBtn = document.getElementById('share');
         const fullscreenBtn = document.getElementById('fullscreen');
         const loading = document.getElementById('loading');
@@ -663,16 +659,104 @@
         
         // 下载视频
         function downloadVideo() {
-            const videoUrl = player.src;
-            if (videoUrl) {
-                const a = document.createElement('a');
-                a.href = videoUrl;
-                a.download = 'video_' + Date.now() + '.mp4';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                incrementDownloadCount();
+            // 获取视频URL，如果player.src为空，使用默认URL
+            let videoUrl = player.src;
+            if (!videoUrl) {
+                // 使用默认的视频API地址
+                videoUrl = 'https://api.mmp.cc/api/ksvideo?type=mp4&id=jk';
             }
+            
+            // 显示加载动画
+            loading.style.display = 'block';
+            
+            // 方法1：尝试使用Fetch API（首选方法）
+            function tryFetchDownload() {
+                fetch(videoUrl, {
+                    method: 'GET',
+                    mode: 'cors',
+                    cache: 'no-cache',
+                    headers: {
+                        'Accept': 'video/mp4'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('网络响应错误: ' + response.status);
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // 创建Blob URL
+                    const blobUrl = URL.createObjectURL(blob);
+                    
+                    // 创建下载链接
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = 'video_' + Date.now() + '.mp4';
+                    document.body.appendChild(a);
+                    
+                    // 触发点击
+                    a.click();
+                    
+                    // 释放Blob URL
+                    setTimeout(() => {
+                        URL.revokeObjectURL(blobUrl);
+                        document.body.removeChild(a);
+                    }, 100);
+                    
+                    // 增加下载次数
+                    incrementDownloadCount();
+                    
+                    // 隐藏加载动画
+                    loading.style.display = 'none';
+                    alert('视频下载已开始，请在浏览器下载管理中查看');
+                })
+                .catch(error => {
+                    console.error('Fetch下载失败:', error);
+                    // 尝试备用方法
+                    tryDirectDownload();
+                });
+            }
+            
+            // 方法2：直接下载（备用方法）
+            function tryDirectDownload() {
+                try {
+                    // 创建下载链接
+                    const a = document.createElement('a');
+                    a.href = videoUrl;
+                    a.download = 'video_' + Date.now() + '.mp4';
+                    // 设置target为_blank作为最后手段
+                    a.target = '_blank';
+                    document.body.appendChild(a);
+                    
+                    // 触发点击
+                    const clickEvent = new MouseEvent('click', {
+                        view: window,
+                        bubbles: true,
+                        cancelable: true
+                    });
+                    a.dispatchEvent(clickEvent);
+                    
+                    // 增加下载次数
+                    incrementDownloadCount();
+                    
+                    // 隐藏加载动画
+                    loading.style.display = 'none';
+                    alert('视频下载已开始，请在浏览器下载管理中查看\n如果没有开始下载，请在新打开的页面中右键保存视频');
+                    
+                    // 移除链接
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                    }, 100);
+                } catch (error) {
+                    console.error('直接下载失败:', error);
+                    loading.style.display = 'none';
+                    alert('下载失败，请稍后再试\n建议：请检查网络连接，或尝试在浏览器中直接访问以下URL:\n' + videoUrl);
+                }
+            }
+            
+            // 开始下载
+            tryFetchDownload();
         }
         
         // 初始化分享次数
@@ -736,10 +820,13 @@
         
         // 添加到观看历史
         function addToHistory(videoUrl) {
+            // 移除URL中的随机参数，只保存基础URL
+            const baseVideoUrl = videoUrl.replace(/&_t=.*$/, '');
+            
             let history = getHistory();
-            history = history.filter(item => item.url !== videoUrl);
+            history = history.filter(item => item.url !== baseVideoUrl);
             const historyItem = {
-                url: videoUrl,
+                url: baseVideoUrl,
                 title: '随机视频',
                 timestamp: new Date().toISOString()
             };
@@ -775,7 +862,7 @@
                                         <p style="color: #333; margin: 0 0 5px 0; font-size: 14px;">视频 ${index + 1}</p>
                                         <p style="color: #666; margin: 0; font-size: 12px;">${date.toLocaleString()}</p>
                                     </div>
-                                    <button onclick="playHistoryVideo('${item.url}')" style="background: rgba(255, 192, 203, 0.2); color: #333; border: 1px solid rgba(255, 192, 203, 0.3); padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">播放</button>
+                                    <button onclick="playHistoryVideo(decodeURIComponent('${encodeURIComponent(item.url)}'))" style="background: rgba(255, 192, 203, 0.2); color: #333; border: 1px solid rgba(255, 192, 203, 0.3); padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">播放</button>
                                 </div>
                             `;
                         }).join('')}
@@ -792,151 +879,23 @@
         }
         
         // 清除观看历史
-        function clearHistory() {
+        window.clearHistory = function() {
             if (confirm('确定要清除所有观看历史吗？')) {
                 localStorage.removeItem('watchHistory');
                 displayHistory([]);
             }
-        }
+        };
         
         // 播放历史视频
-        function playHistoryVideo(videoUrl) {
+        window.playHistoryVideo = function(videoUrl) {
             loading.style.display = 'block';
             player.src = videoUrl;
             player.play().catch(err => {
                 console.error('播放失败:', err);
             });
-        }
+        };
         
-        // 初始化收藏
-        function initCollection() {
-            const collectionList = getCollection();
-            displayCollection(collectionList);
-            updateCollectButton();
-        }
-        
-        // 获取收藏列表
-        function getCollection() {
-            const collection = localStorage.getItem('collection');
-            return collection ? JSON.parse(collection) : [];
-        }
-        
-        // 检查是否已收藏
-        function isCollected(videoUrl) {
-            const collection = getCollection();
-            return collection.some(item => item.url === videoUrl);
-        }
-        
-        // 添加或移除收藏
-        function toggleCollection() {
-            const videoUrl = player.src;
-            if (!videoUrl) return;
-            
-            let collection = getCollection();
-            const isAlreadyCollected = isCollected(videoUrl);
-            
-            if (isAlreadyCollected) {
-                collection = collection.filter(item => item.url !== videoUrl);
-                alert('已取消收藏');
-            } else {
-                const collectionItem = {
-                    url: videoUrl,
-                    title: '随机视频',
-                    timestamp: new Date().toISOString()
-                };
-                collection.push(collectionItem);
-                alert('收藏成功');
-            }
-            
-            localStorage.setItem('collection', JSON.stringify(collection));
-            displayCollection(collection);
-            updateCollectButton();
-        }
-        
-        // 更新收藏按钮状态
-        function updateCollectButton() {
-            const videoUrl = player.src;
-            if (videoUrl && isCollected(videoUrl)) {
-                collectBtn.textContent = '取消收藏';
-                collectBtn.style.background = 'linear-gradient(135deg, #666 0%, #444 100%)';
-                collectBtn.style.boxShadow = '0 4px 15px rgba(102, 102, 102, 0.3)';
-            } else {
-                collectBtn.textContent = '收藏视频';
-                collectBtn.style.background = 'linear-gradient(135deg, #ffc0cb 0%, #ffb6c1 100%)';
-                collectBtn.style.boxShadow = '0 4px 15px rgba(255, 192, 203, 0.3)';
-            }
-        }
-        
-        // 显示收藏列表
-        function displayCollection(collectionList) {
-            const collectionContainer = document.querySelector('.collection-container');
-            const collectionContent = collectionContainer.querySelector('.empty-message') || document.createElement('div');
-            
-            if (collectionList.length === 0) {
-                collectionContent.className = 'empty-message';
-                collectionContent.innerHTML = '暂无收藏';
-            } else {
-                collectionContent.className = 'collection-list';
-                collectionContent.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h4 style="color: #666; margin: 0;">我的收藏 (${collectionList.length})</h4>
-                        <button onclick="clearCollection()" style="background: rgba(255, 192, 203, 0.2); color: #333; border: 1px solid rgba(255, 192, 203, 0.3); padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">清除收藏</button>
-                    </div>
-                    <div style="max-height: 300px; overflow-y: auto;">
-                        ${collectionList.map((item, index) => {
-                            const date = new Date(item.timestamp);
-                            return `
-                                <div style="padding: 10px; margin-bottom: 10px; background: rgba(255, 192, 203, 0.1); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <p style="color: #333; margin: 0 0 5px 0; font-size: 14px;">收藏 ${index + 1}</p>
-                                        <p style="color: #666; margin: 0; font-size: 12px;">${date.toLocaleString()}</p>
-                                    </div>
-                                    <div style="display: flex; gap: 5px;">
-                                        <button onclick="playCollectionVideo('${item.url}')" style="background: rgba(255, 192, 203, 0.2); color: #333; border: 1px solid rgba(255, 192, 203, 0.3); padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">播放</button>
-                                        <button onclick="removeFromCollection('${item.url}')" style="background: rgba(102, 102, 102, 0.2); color: #333; border: 1px solid rgba(102, 102, 102, 0.3); padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer;">删除</button>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                `;
-            }
-            
-            const existingContent = collectionContainer.querySelector('.collection-list') || collectionContainer.querySelector('.empty-message');
-            if (existingContent) {
-                collectionContainer.replaceChild(collectionContent, existingContent);
-            } else {
-                collectionContainer.appendChild(collectionContent);
-            }
-        }
-        
-        // 清除所有收藏
-        function clearCollection() {
-            if (confirm('确定要清除所有收藏吗？')) {
-                localStorage.removeItem('collection');
-                displayCollection([]);
-                updateCollectButton();
-            }
-        }
-        
-        // 从收藏中移除
-        function removeFromCollection(videoUrl) {
-            let collection = getCollection();
-            collection = collection.filter(item => item.url !== videoUrl);
-            localStorage.setItem('collection', JSON.stringify(collection));
-            displayCollection(collection);
-            updateCollectButton();
-        }
-        
-        // 播放收藏视频
-        function playCollectionVideo(videoUrl) {
-            loading.style.display = 'block';
-            player.src = videoUrl;
-            player.play().catch(err => {
-                console.error('播放失败:', err);
-            });
-            updateCollectButton();
-        }
+
         
         function playNext() {
             loading.style.display = 'block';
@@ -951,7 +910,6 @@
         function hideLoading() {
             loading.style.display = 'none';
             errorMessage.style.display = 'none';
-            updateCollectButton();
         }
         
         function toggleFullscreen() {
@@ -986,7 +944,6 @@
         nextBtn.addEventListener('click', playNext);
         refreshBtn.addEventListener('click', playNext);
         downloadBtn.addEventListener('click', downloadVideo);
-        collectBtn.addEventListener('click', toggleCollection);
         shareBtn.addEventListener('click', shareVideo);
         fullscreenBtn.addEventListener('click', toggleFullscreen);
         
@@ -1024,10 +981,9 @@
         initDownloadCount();
         initShareCount();
         initHistory();
-        initCollection();
         player.loop = loopPlay;
-    }
-</script>
+        });
+    </script>
     
     <!-- 版权信息 -->
     <footer style="width: 100%; text-align: center; padding: 20px; margin-top: 30px; color: #666; font-size: 14px;">
